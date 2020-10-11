@@ -127,7 +127,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OchirovA_intersection.h" />
-    <ClInclude Include="OchirovA_error.h" />
     <ClInclude Include="OchirovA_lineSegment.h" />
     <ClInclude Include="OchirovA_point.h" />
     <ClInclude Include="OchirovA_triangle.h" />

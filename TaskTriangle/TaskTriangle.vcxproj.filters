@@ -47,9 +47,6 @@
     <ClInclude Include="OchirovA_intersection.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="OchirovA_error.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="OchirovA_lineSegment.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>

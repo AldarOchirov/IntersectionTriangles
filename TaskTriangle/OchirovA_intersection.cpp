@@ -1,4 +1,3 @@
-#include "OchirovA_error.h"
 #include "OchirovA_intersection.h"
 
 using namespace OchirovA;
@@ -13,7 +12,7 @@ bool OchirovA::pointOnLineSegment(double parameter)
 	return (parameter >= 0.0 && parameter <= 1.0);
 }
 
-std::pair<CPoint, double> OchirovA::getLinePlaneIntersect(const CPlane& plane, const CPoint& firstPoint, const CPoint& secondPoint)
+std::pair<bool, double> OchirovA::getLinePlaneIntersect(const CPlane& plane, const CPoint& firstPoint, const CPoint& secondPoint, CPoint& intersectionPoint)
 {
 	const auto denominator = plane.getA() * (secondPoint.getX() - firstPoint.getX())
 		+ plane.getB() * (secondPoint.getY() - firstPoint.getY())
@@ -26,9 +25,9 @@ std::pair<CPoint, double> OchirovA::getLinePlaneIntersect(const CPlane& plane, c
 	if (fabs(denominator) <= s_EPSILON)
 	{
 		if (fabs(numerator) <= s_EPSILON)
-			throw OchirovA::CError::ERROR_DIVISION_BY_ZERO_LINE_IN_PLANE;
+			return std::make_pair(false, s_LINE_IN_PLANE); //line in plane
 		else
-			throw OchirovA::CError::ERROR_DIVISION_BY_ZERO_LINE_PARALLEL_PLANE;
+			return std::make_pair(false, s_LINE_PARALLEL_PLANE); //line parallel to plane
 	}
 
 	auto parameter = -numerator / denominator;
@@ -37,7 +36,10 @@ std::pair<CPoint, double> OchirovA::getLinePlaneIntersect(const CPlane& plane, c
 	auto y = firstPoint.getY() + parameter * (secondPoint.getY() - firstPoint.getY());
 	auto z = firstPoint.getZ() + parameter * (secondPoint.getZ() - firstPoint.getZ());
 
-	return std::make_pair(CPoint(x, y, z), parameter);
+	CPoint point(x,y,z);
+	intersectionPoint = point;
+
+	return std::make_pair(true, parameter);
 }
 
 bool OchirovA::hasIntersectProjectionX(const CTriangle& triangle, const CLineSegment& lineSegment)
@@ -379,25 +381,19 @@ bool OchirovA::hasIntersect(const CTriangle& triangle, const CPoint& point)
 
 bool OchirovA::hasIntersect(const CTriangle& triangle, const CPlane& plane, const CPoint& firstPoint, const CPoint& secondPoint)
 {
-	try
-	{
-		auto intersectionPoint = getLinePlaneIntersect(plane, firstPoint, secondPoint);
+	CPoint intersectionPoint;
+	auto result = getLinePlaneIntersect(plane, firstPoint, secondPoint, intersectionPoint); //pair <bool, parameter>
 
-		if (pointOnLineSegment(intersectionPoint.second) && hasIntersect(triangle, intersectionPoint.first))
-			return true;
-	}
-	catch (CError &error)
+	if (!result.first)
 	{
-		if (error == OchirovA::CError::ERROR_DIVISION_BY_ZERO_LINE_PARALLEL_PLANE)
+		if (fabs(result.second) == s_LINE_PARALLEL_PLANE)
 			return false;
 		else
-		{
-			if (hasIntersect(triangle, CLineSegment(firstPoint, secondPoint)))
-				return true;
-			else
-				return false;
-		}
+			return hasIntersect(triangle, CLineSegment(firstPoint, secondPoint));
 	}
+
+	if (pointOnLineSegment(result.second) && hasIntersect(triangle, intersectionPoint))
+		return true;
 
 	return false;
 }
