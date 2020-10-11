@@ -4,15 +4,15 @@
 int main()
 {
 	double t1[9]{ 
-		0, 0, 1, 
-		0, 0, 2, 
-		0, 1, 1 
+		3, 0, 0,
+		0, 3, 0,
+		0, 3, 0
 	};
 
 	double t2[9]{
-		0, 0, 1, 
-		0, 0, 2, 
-		0, 1, -1
+		1.5, 1.4, 0,
+		1.5, 1.4, 0,
+		0, 0, 3
 	};
 	std::cout << OchirovA::hasIntersect(t1, t2) << std::endl;
 	return 0;

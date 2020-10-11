@@ -2,9 +2,26 @@
 
 using namespace OchirovA;
 
+double OchirovA::dist(const CPoint& firstPoint, const CPoint& secondPoint)
+{
+	return sqrt((firstPoint.getX() - secondPoint.getX()) * (firstPoint.getX() - secondPoint.getX())
+		+ (firstPoint.getY() - secondPoint.getY()) * (firstPoint.getY() - secondPoint.getY())
+		+ (firstPoint.getZ() - secondPoint.getZ()) * (firstPoint.getZ() - secondPoint.getZ()));
+}
+
 double OchirovA::det(double a11, double a12, double a21, double a22)
 {
 	return a11 * a22 - a12 * a21;
+}
+
+double OchirovA::tripleProduct(const CPoint& firstVector, const CPoint& secondVector, const CPoint& thirdVector)
+{
+	return firstVector.getX() * secondVector.getY() * thirdVector.getZ()
+		+ firstVector.getY() * secondVector.getZ() * thirdVector.getX()
+		+ firstVector.getZ() * secondVector.getX() * thirdVector.getY()
+		- firstVector.getZ() * secondVector.getY() * thirdVector.getX()
+		- firstVector.getY() * secondVector.getX() * thirdVector.getZ()
+		- firstVector.getX() * secondVector.getZ() * thirdVector.getY();
 }
 
 bool OchirovA::pointOnLineSegment(double parameter)
@@ -414,6 +431,207 @@ bool OchirovA::separateSecondTrinagleOnLineSegments(const CTriangle& firstTriang
 	return false;
 }
 
+bool OchirovA::hasIntersectProjectionX(const CLineSegment& firstLineSegment, const CLineSegment& secondLineSegment)
+{
+	auto firstValue = (firstLineSegment.getPointA().getY() - secondLineSegment.getPointA().getY())
+		* (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		- (firstLineSegment.getPointA().getZ() - secondLineSegment.getPointA().getZ())
+		* (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+
+	auto secondValue = (firstLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+		* (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		- (firstLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		* (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+
+	if ((firstValue > 0.0 && secondValue > 0.0)
+		|| (firstValue < 0.0 && secondValue < 0.0))
+		return false;
+
+	if (fabs(firstValue) <= s_EPSILON)
+	{
+		double parameter;
+
+		if ((secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointA().getY() - secondLineSegment.getPointA().getY())
+			/ (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+		else
+			parameter = (firstLineSegment.getPointA().getZ() - secondLineSegment.getPointA().getZ())
+			/ (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	if (fabs(secondValue) <= s_EPSILON)
+	{
+		double parameter;
+		if ((secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+			/ (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+		else
+			parameter = (firstLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+			/ (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	return true;
+}
+
+bool OchirovA::hasIntersectProjectionY(const CLineSegment& firstLineSegment, const CLineSegment& secondLineSegment)
+{
+	auto firstValue = (firstLineSegment.getPointA().getX() - secondLineSegment.getPointA().getX())
+		* (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		- (firstLineSegment.getPointA().getZ() - secondLineSegment.getPointA().getZ())
+		* (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+
+	auto secondValue = (firstLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX())
+		* (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		- (firstLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+		* (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+
+	if ((firstValue > 0.0 && secondValue > 0.0)
+		|| (firstValue < 0.0 && secondValue < 0.0))
+		return false;
+
+	if (fabs(firstValue) <= s_EPSILON)
+	{
+		double parameter;
+
+		if ((secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointA().getX() - secondLineSegment.getPointA().getX())
+			/ (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+		else
+			parameter = (firstLineSegment.getPointA().getZ() - secondLineSegment.getPointA().getZ())
+			/ (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	if (fabs(secondValue) <= s_EPSILON)
+	{
+		double parameter;
+		if ((secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX())
+			/ (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+		else
+			parameter = (firstLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ())
+			/ (secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	return true;
+}
+
+bool OchirovA::hasIntersectProjectionZ(const CLineSegment& firstLineSegment, const CLineSegment& secondLineSegment)
+{
+	auto firstValue = (firstLineSegment.getPointA().getX() - secondLineSegment.getPointA().getX())
+		* (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+		- (firstLineSegment.getPointA().getY() - secondLineSegment.getPointA().getY())
+		* (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+
+	auto secondValue = (firstLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX())
+		* (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+		- (firstLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+		* (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+
+	if ((firstValue > 0.0 && secondValue > 0.0)
+		|| (firstValue < 0.0 && secondValue < 0.0))
+		return false;
+
+	if (fabs(firstValue) <= s_EPSILON)
+	{
+		double parameter;
+
+		if ((secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointA().getX() - secondLineSegment.getPointA().getX())
+			/ (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+		else
+			parameter = (firstLineSegment.getPointA().getY() - secondLineSegment.getPointA().getY())
+			/ (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	if (fabs(secondValue) <= s_EPSILON)
+	{
+		double parameter;
+		if ((secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX()) > s_EPSILON)
+			parameter = (firstLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX())
+			/ (secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX());
+		else
+			parameter = (firstLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY())
+			/ (secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY());
+
+		if (pointOnLineSegment(parameter))
+			return true;
+
+		return false;
+	}
+
+	return true;
+}
+
+bool OchirovA::hasIntersect(const CLineSegment& firstLineSegment, const CLineSegment& secondLineSegment)
+{
+	CPoint firstDirectionVector(firstLineSegment.getPointB().getX() - firstLineSegment.getPointA().getX(),
+		firstLineSegment.getPointB().getY() - firstLineSegment.getPointA().getY(),
+		firstLineSegment.getPointB().getZ() - firstLineSegment.getPointA().getZ());
+
+	CPoint secondDirectionVector(secondLineSegment.getPointB().getX() - secondLineSegment.getPointA().getX(),
+		secondLineSegment.getPointB().getY() - secondLineSegment.getPointA().getY(),
+		secondLineSegment.getPointB().getZ() - secondLineSegment.getPointA().getZ());
+
+	CPoint thirdVector(secondLineSegment.getPointA().getX() - firstLineSegment.getPointA().getX(),
+		secondLineSegment.getPointA().getY() - firstLineSegment.getPointA().getY(),
+		secondLineSegment.getPointA().getZ() - firstLineSegment.getPointA().getZ());
+
+	if (fabs(tripleProduct(firstDirectionVector, secondDirectionVector, thirdVector)) > s_EPSILON)
+	{
+		return false;
+	}
+
+	if (fabs(firstLineSegment.getPointA().getX() - firstLineSegment.getPointB().getX()) <= s_EPSILON)
+		return hasIntersectProjectionX(firstLineSegment, secondLineSegment);
+
+	if (fabs(firstLineSegment.getPointA().getY() - firstLineSegment.getPointB().getY()) <= s_EPSILON)
+		return hasIntersectProjectionY(firstLineSegment, secondLineSegment);
+
+	if (fabs(firstLineSegment.getPointA().getZ() - firstLineSegment.getPointB().getZ()) <= s_EPSILON)
+		return hasIntersectProjectionZ(firstLineSegment, secondLineSegment);
+
+	return hasIntersectProjectionZ(firstLineSegment, secondLineSegment);
+}
+
+bool OchirovA::hasIntersect(const CLineSegment& lineSegment, const CPoint& point)
+{
+	const auto lengthLineSegment = dist(lineSegment.getPointA(), lineSegment.getPointB());
+	const auto firstLength = dist(lineSegment.getPointA(), point);
+	const auto secondLength = dist(lineSegment.getPointB(), point);
+
+	return (fabs(lengthLineSegment - (firstLength + secondLength)) <= s_EPSILON);
+}
+
+bool OchirovA::hasIntersect(const CPoint& firstPoint, const CPoint& secondPoint)
+{
+	return (dist(firstPoint, secondPoint) <= s_EPSILON);
+}
+
 bool OchirovA::hasIntersect(double t1[], double t2[])
 {
 	CPoint pointA1(t1[0], t1[1], t1[2]);
@@ -426,6 +644,54 @@ bool OchirovA::hasIntersect(double t1[], double t2[])
 
 	CTriangle firstTriangle(pointA1, pointB1, pointC1);
 	CTriangle secondTriangle(pointA2, pointB2, pointC2);
+
+	if (firstTriangle.isPoint())
+	{
+		if (secondTriangle.isPoint())
+		{
+			return hasIntersect(firstTriangle.getPointA(), secondTriangle.getPointA());
+		}
+		else
+		{
+			if (auto result = secondTriangle.isLineSegment(); result.first)
+			{
+				return hasIntersect(result.second, firstTriangle.getPointA());
+			}
+			else
+			{
+				return hasIntersect(secondTriangle, firstTriangle.getPointA());
+			}
+		}
+	}
+
+	if (secondTriangle.isPoint())
+	{
+		if (auto result = firstTriangle.isLineSegment(); result.first)
+		{
+			return hasIntersect(result.second, secondTriangle.getPointA());
+		}
+		else
+		{
+			return hasIntersect(firstTriangle, secondTriangle.getPointA());
+		}
+	}
+
+	if (auto firstResult = firstTriangle.isLineSegment(); firstResult.first)
+	{
+		if (auto secondResult = secondTriangle.isLineSegment(); secondResult.first)
+		{
+			return hasIntersect(firstResult.second, secondResult.second);
+		}
+		else
+		{
+			return hasIntersect(secondTriangle, firstResult.second);
+		}
+	}
+	
+	if (auto result = secondTriangle.isLineSegment(); result.first)
+	{
+		return hasIntersect(firstTriangle, result.second);
+	}
 
 	if (separateSecondTrinagleOnLineSegments(firstTriangle, secondTriangle))
 		return true;

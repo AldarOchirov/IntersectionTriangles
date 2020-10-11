@@ -1,8 +1,11 @@
 #pragma once
+#include <utility>
 #include "OchirovA_point.h"
 
 namespace OchirovA
 {
+	class CLineSegment;
+
 	class CTriangle
 	{
 	private:
@@ -15,5 +18,7 @@ namespace OchirovA
 		CPoint getPointA() const;
 		CPoint getPointB() const;
 		CPoint getPointC() const;
+		bool isPoint() const;
+		std::pair<bool, CLineSegment> isLineSegment() const;
 	};
 }
